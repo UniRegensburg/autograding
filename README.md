@@ -10,7 +10,7 @@ A simple, flexible toolchain for automatically pre-grading submissions for assig
 - relatively robust against bad input
 - tools for distributing assignments to graders and for combining the graded submissions again (via CSV files)
 
-## Linmitations
+## Limitations
 
 - only works with submissions in plain text files (using custom scripts, it is also able to auto-grade further files, such as PDFs)
 - make assumptions about the file name structure (i.e., Moodle ID and student's names have to be included in file name of submission)
