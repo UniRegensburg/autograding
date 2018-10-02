@@ -1,0 +1,15 @@
+1234567
+Aufgabe 11.1:
+a) 2,04
+b) 0,56
+Aufgabe 11.2:
+a) /((der)|(die)|(das)) [A-Z][a-z]+/g
+b) /[^!?\.]+!/g
+c) /0x[0-9A-Fa-f][0-9A-Fa-f]/g
+Aufgabe 11.3:
+a) IF A=1 THEN PRINT 3 - 3
+b) LET E = 153
+c) INPUT U
+Aufgabe 11.4:
+a) Die Wörter beginnen und enden mit einem d, dazwischen stehen beliebeig viele und in beliebiger Reihenfolge angeordnet e und f
+b) /d(e|f)*d/

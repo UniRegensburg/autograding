@@ -1,0 +1,15 @@
+<Matrikelnummer>
+Aufgabe 11.1:
+a) /.*2[,.]04.*/ # 2
+b) /.*0[,.]05.*/ # 2
+Aufgabe 11.2:
+a) check_substantive() # 3
+b) check_exclamation_mark() # 3
+c) check_hex() # 3
+Aufgabe 11.3:
+a) /.*IF A ?[<>=] ?. THEN PRINT 3 ?- ?3.*/ # 2
+b) /.*LET E ?= ?153.*/ # 2
+c) /.*INPUT [A-Z].*/ # 2
+Aufgabe 11.4:
+a) /.*/ # 3
+b) check_defd() # 3
