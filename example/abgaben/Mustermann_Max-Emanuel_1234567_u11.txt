@@ -1,13 +1,13 @@
 1234567
 Aufgabe 11.1:
-a) 2,04
-b) 0,56
+a) 2.04
+b) 56
 Aufgabe 11.2:
-a) /((der)|(die)|(das)) [A-Z][a-z]+/g
-b) /[^!?\.]+!/g
+a) /a/g
+b) ?
 c) /0x[0-9A-Fa-f][0-9A-Fa-f]/g
-Aufgabe 11.3:
-a) IF A=1 THEN PRINT 3 - 3
+Aufgabe 11 ,  3:
+a) IF A=3 THEN ECHO 1
 b) LET E = 153
 c) INPUT U
 Aufgabe 11.4:
