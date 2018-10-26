@@ -23,7 +23,7 @@ else
     exit 1
 fi
 
-if [[ ! -f ${BASEDIR}/check_assignment.py ]]; then
+if [[ ! -f ${TOOLDIR}/check_assignment.py ]]; then
     echo ">>> No check_assignment.py script found in $BASEDIR <<<"
     exit 1
 fi
@@ -35,6 +35,6 @@ echo "#>> Using assignments dir \"$ASSDIR\""
 echo 'ID,Name,Punkte,Bewertung,"Feedback als Kommentar"'
 for f in `ls $ASSDIR/*.txt`; do
     errcho "Processing $f ..."
-    ${BASEDIR}/check_assignment.py $f
+    ${TOOLDIR}/check_assignment.py $f
 done
 
