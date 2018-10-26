@@ -9,12 +9,27 @@ import re
 import os
 import codecs
 import magic
+import glob
 from types import *
 import builtins
 
-# TODO: generate automatically
-TEMPLATE = "./example/u11_solution.txt"
-from example.custom import *
+
+'''The working directory from which this script is started should contain the following files:
+    - u01_solution.txt (a solution file)
+    - custom.py (for custom scripts)
+    - abgaben/Mustermann_Max_1234_u01.txt (etc.)
+
+'''
+PRINT_HTML = False
+
+CUR_DIR = os.getcwd() 
+sys.path.insert(0, CUR_DIR)
+TEMPLATE = glob.glob(os.path.join(CUR_DIR, "./u*_solution.txt"))[0]
+
+try:
+    from custom import *
+except ModuleNotFoundError:
+    pass
 
 # global info available for all functions (hack that makes it easier for custom.py)
 builtins.firstname = ""
@@ -53,8 +68,8 @@ def grade_assignment(assignment, grading_template):
                 cur_sol = task[2]
         print("# " +c_task[0] + c_task[1] + ": ", end='')
         if not solution_submitted:
-            feedback_list.append(c_task[0] + c_task[1] + ": fehlt.")
-            print("fehlt")
+            feedback_list.append(c_task[0] + c_task[1] + ": fehlt!")
+            print("#fehlt")
         else: 
             cur_c_sol, cur_c_points = c_task[2].split("#")
             cur_c_sol = cur_c_sol.strip()
@@ -67,15 +82,19 @@ def grade_assignment(assignment, grading_template):
 
 def check_solution(solution, correct_solution, correct_points):
     # find out type of correct_solution (regex or function)
+    if len(solution.strip()) == 0:
+        return (0, "fehlt!") # should already have been caught by grade_assignment
     if correct_solution.startswith("/"): # regex handling
         if re.match(correct_solution.strip("/"), solution, flags=re.IGNORECASE) != None:
             return (correct_points, "ist korrekt!")
         else:
             return (0, "ist falsch!")
+    elif correct_solution.startswith("{") and correct_solution.endswith("}"):
+        # TODO: handle dicts
+        err("Dictionary check not implemented yet")
     elif correct_solution.endswith("()"):
         check_func = correct_solution.strip("()")
         return (eval(check_func + "(\"" + solution.replace('"',"'") + "\")"))
-        #return check_colors(solution)
     else:
         err("OOPS")
         return (0, "")
@@ -120,6 +139,7 @@ def parse_solution(text):
 
 def load_and_clean(textfile):
     global lastname, firstname, uid
+    warned_about_lt_gt_signs = False
     real_filename=os.path.basename(textfile)
     names = re.findall(r"[a-zA-ZäöüßÄÖÜ]+", real_filename)[0:-2]
     lastname = names[0]
@@ -134,7 +154,8 @@ def load_and_clean(textfile):
     format_correct_points = 5
     mag = magic.open(magic.MAGIC_MIME_ENCODING)
     mag.load()
-    orig_filename = textfile.split("_")[4]
+    orig_filename = textfile.split("_")[3:]
+    orig_filename = "_".join(orig_filename)
     if re.match("u[0-9]{2}", orig_filename) == None:
         feedback_list.append("Punktabzug für falschen Datei-Namen: " + orig_filename)
         print("# Punktabzug für falschen Datei-Namen: " + orig_filename + ".txt")
@@ -157,6 +178,14 @@ def load_and_clean(textfile):
     text = text.replace("\r\n","\n").replace("\r","\n")
     # convert non-breaking whitespace to regular whitespace
     text = text.replace("\xa0"," ")
+    for line in text.splitlines():
+        if "<" in line[0:4] and line.strip().endswith(">"):
+            if not warned_about_lt_gt_signs:
+                feedback_list.append("Punktabzug - Lösungen in spitzen Klammern :(  ")
+                print("# Punktabzug - Lösung(en) in spitzen Klammern :(  ")
+                warned_about_lt_gt_signs = True
+                format_correct_points -= 1
+
 
     print("# Punkte für korrektes Abgabeformat: " + str(format_correct_points) + "/5 Punkten")
     return text, format_correct_points
@@ -213,11 +242,14 @@ grade = calc_score(points, format_correct_points, max_points)
 
 # finally
 # print ("\nFEEDBACK\n========\n")
-csv_start = 'Teilnehmer/in%s,"%s","nicht ausreichend\nok\ngut",,"' % (uid, grade)
+csv_start = 'Teilnehmer/in%s,"%s",%d,"%s","' % (uid, lastname+", "+firstname, points+format_correct_points, grade)
 csv_end = '"'
 print(csv_start)
 for line in feedback_list:
-    line = line.replace("<", "&lt;").replace(">", "&gt;").replace('"',"'")
-    print("<p> " + line + " </p>")
+    line = line.replace('"',"'") # messes with CSV!
+    if PRINT_HTML:
+        line = line.replace("<", "&lt;").replace(">", "&gt;").replace('"',"'")
+        line = "<p> " + line + " </p>"
+    print(line)
 print(csv_end)
 
