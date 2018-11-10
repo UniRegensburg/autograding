@@ -4,7 +4,7 @@ import sys
 import os
 import re
 from collections import deque
-from csv import DictReader, DictWriter
+from csv import DictReader, DictWriter, Sniffer
 
 def combine_assignments(csv_file_list):
     FIELD_NAMES = "ID,Bewertung,Skala,Zuletzt geändert (Bewertung),Feedback als Kommentar".split(",")
@@ -18,9 +18,18 @@ gut"""
     writer.writeheader()
     for csv_file in csv_file_list:
         with open(csv_file, "r") as fd:
+            firstchar = fd.read(1)
+            if firstchar in ["\ufeff", "\ufffe"]:  # BOM
+                pass
+            else:
+                fd.seek(0)
+            # dialect = Sniffer().sniff(fd.read(1024))
+            # fd.seek(0)
+            # print(">>> " + str(dialect.delimiter))
+            # reader = DictReader(fd, dialect=dialect)
             reader = DictReader(fd)
             for row in reader:
-                #try:
+                # try:
                     row["Skala"] = SKALA
                     for remove_field in REMOVE_FIELDS:
                         row.pop(remove_field)
@@ -28,13 +37,13 @@ gut"""
                     new_feedback = []
                     for line in feedback.splitlines():
                         line = line.replace("<", "&lt;").replace(">", "&gt;")
-                        line = re.sub(r'[^\x00-\xFF]+','(U)', line) # remove Unicode chars - Moodle doesn't like them
+                        line = re.sub(r'[^\x00-\xFF]+', '(U)', line)  # remove Unicode chars - Moodle doesn't like them
                         line = "<p>" + line + "</p>"
                         new_feedback.append(line)
-                    new_feedback = " \n".join(new_feedback) # make it a string
+                    new_feedback = " \n".join(new_feedback)  # make it a string
                     row[FEEDBACK_COLUMN] = new_feedback
                     writer.writerow(row)
-                #except Error e:
+                # except Error e:
                 #    print(">>> " + str(row) + str(e), file=sys.stderr)
     # done
 if __name__ == "__main__":

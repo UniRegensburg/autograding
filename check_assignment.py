@@ -57,8 +57,9 @@ def calc_max_points(solution):
 
 
 def grade_assignment(assignment, grading_template):
-    sols = parse_solution(assignment)
+    # order important here, because matrikel_nummer is set by both parse_solution() calls - but only the Matrikelnummer from the solution is what we want to remember
     c_sols = parse_solution(grading_template)
+    sols = parse_solution(assignment)
     points = 0
     for c_task in c_sols:
         solution_submitted = False
@@ -102,13 +103,12 @@ def check_solution(solution, correct_solution, correct_points):
 
 # both for grading template and actual solution by student
 def parse_solution(text):
-    global matrikel_nummer
     global format_correct_points
     tasks = []
     cur_task = None
     cur_subtask = None
     solution =""
-    matrikel_nummer = text.splitlines()[0]
+    builtins.matrikel_nummer = text.splitlines()[0]
     for line in text.splitlines()[1:]:
         line = line.strip(" \t")
         if len(line) == 0:
@@ -119,7 +119,7 @@ def parse_solution(text):
                 if t == cur_task:
                     err("Achtung, mehrere Lösungen für %s - manuell überprüfen. Punktabzug!" % (cur_task))
                     feedback_list.append("Punktabzug - mehrere Lösungen für %s" % (cur_task))
-                    format_correct_points -= 1
+                    builtins.format_correct_points -= 1
             cur_subtask = ""
             solution = ""
         elif re.match("^[a-z]\)", line) != None:
@@ -133,18 +133,17 @@ def parse_solution(text):
             else:
                 err("Punktabzug - Lösung ohne zugehörige Aufgabe: " + solution)
                 feedback_list.append("Punktabzug - Lösung ohne zugehörige Aufgabe: " + solution)
-                format_correct_points -= 1
+                builtins.format_correct_points -= 1
 
     return tasks
 
 def load_and_clean(textfile):
-    global lastname, firstname, uid
     warned_about_lt_gt_signs = False
     real_filename=os.path.basename(textfile)
     names = re.findall(r"[a-zA-ZäöüßÄÖÜ]+", real_filename)[0:-2]
-    lastname = names[0]
-    firstname = names[1]
-    uid = re.findall(r"[0-9]{7}", real_filename)[0]
+    builtins.lastname = names[0]
+    builtins.firstname = names[1]
+    builtins.uid = re.findall(r"[0-9]{7}", real_filename)[0]
     print("#")
     print("#############################################################################")
     print("# %s, %s (%s) " % (lastname, firstname, uid))
